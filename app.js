@@ -1,11 +1,16 @@
 const express = require('express')
+const exphbs = require('express-handlebars')
+
 const app = express()
 const port = 3000
 
+app.engine('hbs', exphbs.engine({ defaultLayout: 'main', extname: '.hbs' }))
+app.set('view engine', 'hbs')
+
 app.get('/', (req, res) => {
-  res.send("<h1>Hello Shortner</h1>")
+  res.render('index')
 })
 
 app.listen(port, () => {
-  console.log(`app.js is listening on port: ${port}`)
+  console.log(`app.js is running on http://localhost: ${port}`)
 })
