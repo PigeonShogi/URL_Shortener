@@ -2,14 +2,15 @@ const express = require('express')
 const { create, findById } = require('../models/url')
 const router = express.Router()
 const Url = require('../models/url')
-const domain = 'https://afternoon-mountain-84879.herokuapp.com/' || `localhost:${port}`
+// const domain = 'https://afternoon-mountain-84879.herokuapp.com/' || `localhost:3000/`
+const domain = `localhost:3000/`
 
 const lowercase = 'abcdefghijklmnopqrstuvwxyz'
 const uppercase = lowercase.toUpperCase()
 const number = '0123456789'
 const mix = lowercase.split('').concat(uppercase.split(''), number.split('')) // 此陣列長度為 62
 
-// 短網址輸出格式為 5 碼英數組合
+// 隨機五碼英數組合產出函式
 function randomCode(digit) {
   let finalCode = ''
   for (let i = 1; i < digit + 1; i++) {
@@ -19,6 +20,9 @@ function randomCode(digit) {
   return finalCode
 }
 
+// 一鍵複製函式（開發中）
+
+
 // 路由：開啟首頁
 router.get('/', (req, res) => {
   res.render('index')
@@ -27,10 +31,22 @@ router.get('/', (req, res) => {
 // 路由：產出縮網址
 router.post('/', (req, res) => {
   const url = req.body.url
-  const code = randomCode(5)
 
-  return Url.create({ url, code })
-    .then(() => res.render('show', { domain, code }))
+  return Url.find()
+    .lean()
+    .then(dataArray => {
+      const target = dataArray.find(oneObject => oneObject.url === url)
+      if (target === undefined) {
+        // 上一行用 find() 檢視資料庫內有無縮址記錄。若無則在資料庫建立一筆新的縮址記錄。
+        const code = randomCode(5)
+        return Url.create({ url, code })
+          .then(() => res.render('show', { domain, code }))
+      } else {
+        // 前述 find() 檢視資料庫內若有縮址記錄，則資料庫不需再次建立一筆資料，直接渲染頁面告訴使用者縮址結果。
+        const code = target.code
+        res.render('show', { domain, code })
+      }
+    })
     .catch(error => console.error(error))
 })
 
@@ -40,16 +56,13 @@ router.get('/:code', (req, res) => {
   return Url.find()
     .lean()
     .then(dataArray => {
-      const oneArray = dataArray.find(element => {
+      const oneObject = dataArray.find(element => {
         return element.code === code
       })
-      res.redirect(`${oneArray.url}`)
+      res.redirect(`${oneObject.url}`)
     })
 })
 
-// 測試路由：
-router.get('/short_url/output', (req, res) => {
-  res.render('show')
-})
+router.get
 
 module.exports = router
