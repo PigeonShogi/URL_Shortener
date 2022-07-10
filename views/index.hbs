@@ -1,5 +1,6 @@
 <form action="/" method="POST">
   <div class="input-group mb-3" id="postUrlHere">
+    {{!-- 在 input 標籤之後添加 required 屬性，藉此避免使用者送出空白內容 --}}
     <input type="text" class="form-control" name="url" placeholder="在此貼上完整網址" aria-label="想縮短的網址"
       aria-describedby="basic-addon1" required="required">
     <button class="btn btn-primary mx-1" type="submit">產出縮網址</button>
